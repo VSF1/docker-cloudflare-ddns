@@ -13,16 +13,20 @@ else
   CurrentIpAddress=$(getPublicIpAddress)
 fi
 
-if [ "$CurrentIpAddress" != "$DnsIpAddress" ]; then
-  echo "Updating CloudFlare DNS record $CF_RECORD_NAME from $DnsIpAddress to $CurrentIpAddress..."
-  update=$(updateDnsRecord $CF_ZONE_ID $CF_RECORD_ID $CF_RECORD_NAME $CurrentIpAddress)
-
-  if [ "$update" == "null" ]; then
-    echo "ERROR: Failed to update CloudFlare DNS record $CF_RECORD_NAME from $DnsIpAddress to $CurrentIpAddress"
-  else
-    echo "CloudFlare DNS record $CF_RECORD_NAME ($CurrentIpAddress) updated successfully."
-  fi
-  
+if [ "$DnsIpAddress" == "" ]; then
+  echo "ERROR: Failed to determine DNS record $CF_RECORD_NAME ip address."
 else
-  echo "No DNS update required for $CF_RECORD_NAME ($DnsIpAddress)."
+  if [ "$CurrentIpAddress" != "$DnsIpAddress" ]; then
+    echo "Updating CloudFlare DNS record $CF_RECORD_NAME from $DnsIpAddress to $CurrentIpAddress..."
+    update=$(updateDnsRecord $CF_ZONE_ID $CF_RECORD_ID $CF_RECORD_NAME $CurrentIpAddress)
+
+    if [ "$update" == "null" ]; then
+      echo "ERROR: Failed to update CloudFlare DNS record $CF_RECORD_NAME from $DnsIpAddress to $CurrentIpAddress"
+    else
+      echo "CloudFlare DNS record $CF_RECORD_NAME ($CurrentIpAddress) updated successfully."
+    fi
+  
+  else
+    echo "No DNS update required for $CF_RECORD_NAME ($DnsIpAddress)."
+  fi
 fi
